@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QueueLeaf</title>
+  <link rel="icon" href="logo.svg" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <img src="QueueLeaf Logo.png" alt="QueueLeaf" class="logo" />
+      <span class="brand-name">QueueLeaf</span>
+    </div>
+    <nav class="nav">
+      <button id="theme-toggle" class="nav-btn" title="Toggle theme">🌙</button>
+      <button data-route="join" class="nav-btn active">Join</button>
+      <button data-route="status" class="nav-btn">Status</button>
+      <button data-route="staff" class="nav-btn">Staff</button>
+      <button data-route="analytics" class="nav-btn">Analytics</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- JOIN PAGE -->
+    <section id="page-join" class="card">
+      <div class="banner">
+        <span class="pill">QueueLeaf Demo</span>
+        <span class="hint">Average wait ~ <b id="avg-wait">0 min</b></span>
+      </div>
+      <p id="custom-message" class="subtle"></p>
+      <p id="closed-msg" class="warn" style="display:none">Queue is currently closed</p>
+      <form id="join-form" class="grid-3">
+        <label>
+          <span>Your name</span>
+          <input required name="name" placeholder="e.g., Alex" />
+        </label>
+        <label>
+          <span>Party size</span>
+          <input required type="number" min="1" value="1" name="party" />
+        </label>
+        <label>
+          <span>Phone or email (optional)</span>
+          <input name="contact" placeholder="For notifications" />
+        </label>
+        <div class="full">
+          <button type="submit" class="btn primary" id="join-btn">Join Queue</button>
+        </div>
+      </form>
+      <p class="micro subtle">By joining, you agree to receive on-site updates. No apps needed.</p>
+    </section>
+
+    <!-- STATUS PAGE -->
+    <section id="page-status" class="card" hidden>
+      <div class="ticket" id="ticket-summary">
+        <div>
+          <div class="label">Ticket</div>
+          <div class="ticket-title">
+            <span id="ticket-name">—</span>
+            <span class="muted" id="ticket-id">#----</span>
+          </div>
+        </div>
+        <span id="ticket-status" class="pill">waiting</span>
+      </div>
+
+      <div class="stats two" id="status-stats">
+        <div class="stat"><div class="label">Your position</div><div class="value" id="your-position">-</div></div>
+        <div class="stat"><div class="label">Estimated wait</div><div class="value" id="your-eta">-</div></div>
+      </div>
+
+      <section class="subcard">
+        <h2>Queue Snapshot</h2>
+        <ol id="queue-list" class="queue-list"></ol>
+      </section>
+
+      <button class="btn" id="leave-queue">Leave Queue</button>
+    </section>
+
+    <!-- STAFF PAGE -->
+    <section id="page-staff" class="card" hidden>
+      <div id="staff-gate">
+        <h2>Staff Login</h2>
+        <form id="staff-login" class="stack">
+          <input type="password" placeholder="Password is 'demo'" />
+          <button class="btn dark">Sign in</button>
+        </form>
+        <hr />
+      </div>
+
+      <div id="staff-ui" hidden>
+        <div class="stats four">
+          <div class="stat"><div class="label">In queue</div><div class="value" id="stat-inqueue">0</div></div>
+          <div class="stat"><div class="label">Avg service</div><div class="value"><span id="stat-avg">6</span> min</div></div>
+          <div class="stat"><div class="label">Served today</div><div class="value" id="stat-served">0</div></div>
+          <div class="stat"><div class="label">Status</div><div class="value" id="stat-open">Open</div></div>
+        </div>
+
+        <section class="subcard">
+          <div class="row between">
+            <h2>Controls</h2>
+            <span class="pill">core + extras</span>
+          </div>
+          <div class="grid-3">
+            <div class="box row between">
+              <div>
+                <div class="label">Queue open</div>
+                <div class="micro subtle">Public can join when enabled</div>
+              </div>
+              <button class="btn tiny" id="toggle-open">Open</button>
+            </div>
+
+            <label class="box">
+              <span class="label">Custom message</span>
+              <textarea rows="2" id="input-message"></textarea>
+            </label>
+
+            <label class="box">
+              <span class="label">Average service time (min)</span>
+              <input type="number" min="1" id="input-avg" value="6" />
+            </label>
+          </div>
+        </section>
+
+        <section class="subcard">
+          <div class="row between">
+            <h2>Queue</h2>
+            <button class="btn primary tiny" id="call-next">Call next</button>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="queue-table">
+              <thead>
+                <tr>
+                  <th>Name</th><th>Party</th><th>Status</th><th>Joined</th><th>ETA</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="queue-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="subcard">
+          <h2>QR Poster (printable)</h2>
+          <div class="grid-2">
+            <div class="poster">
+              <div class="poster-title">Join the Queue</div>
+              <div class="poster-sub">Scan to join · No app needed</div>
+              <div class="qr">QR</div>
+              <div class="poster-url">https://queueleaf.example.com/join</div>
+            </div>
+            <p class="subtle">Replace the poster with your venue QR linking to the Join page. Print on A5 or Letter. In production, generate real QR images server-side.</p>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- ANALYTICS PAGE -->
+    <section id="page-analytics" class="card" hidden>
+      <h2>Analytics (preview)</h2>
+      <div id="chart" class="chart"></div>
+      <p class="micro subtle">Bar chart shows served-per-hour based on this session's history.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer micro subtle">
+    QueueLeaf demo · No server required · Built for rapid iteration
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
