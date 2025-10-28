@@ -74,6 +74,20 @@
         <ol id="queue-list" class="queue-list"></ol>
       </section>
 
+      <div class="row between gap" style="align-items:center; margin-top:1rem;">
+        <div class="subtle" style="font-size:0.9rem;">
+          Bored while you wait?
+        </div>
+        <a id="game-link"
+          class="btn tiny"
+          href="https://tetris.com/play-tetris"
+          target="_blank"
+          rel="noopener noreferrer">
+          🎮 Play a quick game
+        </a>
+      </div>
+
+
       <button class="btn" id="leave-queue">Leave Queue</button>
     </section>
 
@@ -93,7 +107,11 @@
           <div class="stat"><div class="label">In queue</div><div class="value" id="stat-inqueue">0</div></div>
           <div class="stat"><div class="label">Avg service</div><div class="value"><span id="stat-avg">6</span> min</div></div>
           <div class="stat"><div class="label">Served today</div><div class="value" id="stat-served">0</div></div>
-          <div class="stat"><div class="label">Status</div><div class="value" id="stat-open">Open</div></div>
+          <div class="stat">
+            <div class="label">Status</div>
+            <div id="stat-status" class="value">Closed</div>
+          </div>
+        </div>
         </div>
 
         <section class="subcard">
@@ -142,13 +160,20 @@
         <section class="subcard">
           <h2>QR Poster (printable)</h2>
           <div class="grid-2">
-            <div class="poster">
-              <div class="poster-title">Join the Queue</div>
-              <div class="poster-sub">Scan to join · No app needed</div>
-              <div class="qr">QR</div>
-              <div class="poster-url">https://queueleaf.example.com/join</div>
+            <div class="poster-preview">
+              <p class="subtle" style="text-align:center;">
+                Join the Queue<br/>
+                Scan to join · No app needed
+              </p>
+              <div id="qr-box">QR</div>
             </div>
-            <p class="subtle">Replace the poster with your venue QR linking to the Join page. Print on A5 or Letter. In production, generate real QR images server-side.</p>
+
+            <div class="poster-notes">
+              <p>
+                Replace the poster with your venue QR linking to the Join page.
+                Print on A5 or Letter. In production, generate real QR images server-side.
+              </p>
+            </div>
           </div>
         </section>
       </div>
@@ -165,7 +190,8 @@
   <footer class="site-footer micro subtle">
     QueueLeaf demo · No server required · Built for rapid iteration
   </footer>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="app.js"></script>
+
 </body>
 </html>
