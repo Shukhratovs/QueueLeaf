@@ -404,7 +404,7 @@ async function renderStaff(){
 
   qrBox.innerHTML = ""; // clear any old content
 
-  // URL that customers will scan — update to your real domain later
+  // URL that customers will scan — this is an example link
   const joinUrl = `https://play.tetris.com/`;
 
   try {
