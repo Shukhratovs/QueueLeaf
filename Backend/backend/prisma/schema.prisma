@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  role      String   @default("staff")
+  createdAt DateTime @default(now())
+  queues    Queue[]  @relation("ManagedQueues")
+}
+
+model Queue {
+  id            Int       @id @default(autoincrement())
+  name          String
+  isOpen        Boolean   @default(true)
+  avgServiceSec Int       @default(300)
+  customMessage String?
+  createdAt     DateTime  @default(now())
+  tickets       Ticket[]
+  staffId       Int?
+  staff         User?     @relation("ManagedQueues", fields: [staffId], references: [id])
+}
+
+model Ticket {
+  id           Int       @id @default(autoincrement())
+  queueId      Int
+  name         String
+  partySize    Int
+  status       String    @default("waiting")
+  createdAt    DateTime  @default(now())
+  calledAt     DateTime?
+  servedAt     DateTime?
+  leftAt       DateTime?  // NEW FIELD
+  contactType  String?
+  contactValue String?
+  staffNotes   String?
+  Queue        Queue     @relation(fields: [queueId], references: [id])
+}

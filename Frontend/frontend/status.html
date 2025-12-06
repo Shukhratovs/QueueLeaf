@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Queue Status · QueueLeaf</title>
+    <link rel="icon" href="assets/logo.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: "#0d9488",
+              brandDark: "#0f766e",
+            },
+            keyframes: {
+              fadeInUp: {
+                "0%": { opacity: 0, transform: "translateY(10px)" },
+                "100%": { opacity: 1, transform: "translateY(0)" },
+              },
+              bounceSubtle: {
+                "0%, 100%": { transform: "translateY(0)" },
+                "50%": { transform: "translateY(-3px)" },
+              },
+            },
+            animation: {
+              fadeInUp: "fadeInUp 0.4s ease-out",
+              alertGlow: "alertGlow 1.2s ease-in-out infinite",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      .status-transition {
+        transition: all 0.35s ease;
+      }
+
+      .status-pulse {
+        animation: pulseStatus 1s infinite ease-in-out;
+      }
+
+      @keyframes pulseStatus {
+        0% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.05);
+          opacity: 0.85;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      /* Slide in from top */
+      @keyframes slideInDown {
+        0% {
+          opacity: 0;
+          transform: translateY(-15px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Glow effect */
+      @keyframes glowPulse {
+        0%,
+        100% {
+          box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+        }
+        50% {
+          box-shadow: 0 0 12px rgba(239, 68, 68, 0.8);
+        }
+      }
+
+      /* Disappear animation */
+      @keyframes fadeOutUp {
+        0% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+      }
+
+      /* Utility classes */
+      .alert-slide-in {
+        animation: slideInDown 0.35s ease-out forwards,
+          glowPulse 2s infinite ease-in-out;
+      }
+
+      .alert-hide {
+        animation: fadeOutUp 0.4s ease-in forwards;
+      }
+    </style>
+  </head>
+
+  <body
+    class="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-gray-100 overflow-x-hidden"
+  >
+    <!-- HEADER -->
+    <header class="w-full bg-white shadow-sm">
+      <div class="max-w-lg mx-auto flex items-center gap-3 px-4 py-3">
+        <img src="assets/logo.png" alt="QueueLeaf" class="w-8 h-8 rounded-lg" />
+        <span class="font-semibold text-lg text-gray-700">QueueLeaf</span>
+      </div>
+    </header>
+
+    <!-- MAIN AREA -->
+    <main class="flex-1 flex flex-col items-center px-4 py-6 animate-fadeInUp">
+      <!-- Notification Toggles -->
+      <div class="flex flex-col w-full max-w-lg gap-3 mb-4 animate-fadeInUp">
+        <button
+          id="enable-sound"
+          class="w-full bg-white border border-gray-300 rounded-xl py-2 text-sm text-gray-700 shadow-sm hover:shadow transition"
+        >
+          Enable Sound Alerts
+        </button>
+      </div>
+
+      <!-- CALLED ALERT -->
+      <div
+        id="called-alert"
+        class="hidden w-full max-w-lg bg-red-500 text-white text-center font-semibold py-3 px-4 rounded-xl shadow-lg flex items-center justify-center gap-2"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5 animate-pulse"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M8.257 3.099c.366-.756 1.42-.756 1.786 0l6.516 13.455A1 1 0 0115.516 18H4.484a1 1 0 01-.903-1.446L10.097 3.1zM11 14a1 1 0 11-2 0 1 1 0 012 0zm-1-2a1 1 0 01-1-1V7a1 1 0 112 0v4a1 1 0 01-1 1z"
+            clip-rule="evenodd"
+          />
+        </svg>
+        <span>You are being called! Please return to the host stand.</span>
+      </div>
+
+      <!-- CUSTOM MESSAGE -->
+      <div
+        id="queue-custom-message"
+        class="hidden w-full max-w-lg bg-blue-50 border border-blue-200 text-blue-800 py-3 px-4 rounded-xl shadow-sm text-sm mb-4 animate-fadeInUp"
+      ></div>
+
+      <!-- STATUS CARD -->
+      <section
+        id="status-card"
+        class="w-full max-w-lg bg-white rounded-2xl shadow-md p-6 animate-fadeInUp"
+      >
+        <!-- TICKET SUMMARY -->
+        <h2
+          id="queue_Name"
+          class="text-xl font-semibold text-gray-800 mb-4"
+        ></h2>
+
+        <div
+          class="flex items-center justify-between mb-4 bg-gray-50 border border-gray-200 rounded-xl p-4 animate-fadeInUp"
+        >
+          <div>
+            <div class="text-xs text-gray-500 uppercase tracking-wide">
+              Ticket
+            </div>
+
+            <div class="text-lg font-semibold flex items-center gap-2">
+              <span id="ticket-name">—</span>
+              <span id="ticket-id" class="text-gray-400 text-sm">#----</span>
+            </div>
+          </div>
+
+          <span
+            id="ticket-status"
+            class="px-3 py-1 rounded-full text-sm font-semibold transition"
+          >
+            waiting
+          </span>
+        </div>
+
+        <!-- POSITION + ETA -->
+        <div class="grid grid-cols-2 gap-4 sm:gap-6 mb-8 animate-fadeInUp">
+          <div
+            class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center"
+          >
+            <div class="text-xs text-gray-500 mb-1">Your Position</div>
+
+            <div class="flex items-center justify-center w-full">
+              <span
+                id="your-position"
+                class="font-extrabold text-gray-800 leading-none inline-block whitespace-nowrap"
+                style="font-size: 40px"
+              >
+                –
+              </span>
+            </div>
+          </div>
+
+          <div
+            class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center"
+          >
+            <div class="text-xs text-gray-500 mb-1">Estimated Wait</div>
+
+            <!-- PROGRESS RING WRAPPER -->
+            <div
+              class="relative flex items-center justify-center mx-auto"
+              style="width: 80px; height: 80px"
+            >
+              <!-- BACK RING -->
+              <svg class="absolute top-0 left-0" width="80" height="80">
+                <circle
+                  cx="40"
+                  cy="40"
+                  r="35"
+                  stroke="#e5e7eb"
+                  stroke-width="6"
+                  fill="none"
+                ></circle>
+              </svg>
+
+              <!-- PROGRESS RING (foreground) -->
+              <svg class="absolute top-0 left-0" width="80" height="80">
+                <circle
+                  id="eta-ring"
+                  cx="40"
+                  cy="40"
+                  r="35"
+                  stroke="#0d9488"
+                  stroke-width="6"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-dasharray="219.91"
+                  stroke-dashoffset="219.91"
+                  style="transition: stroke-dashoffset 0.5s linear"
+                ></circle>
+              </svg>
+
+              <!-- ETA TEXT (MINUTES) -->
+              <span id="your-eta" class="text-lg font-semibold text-gray-700"
+                >–</span
+              >
+            </div>
+
+            <!-- LIVE COUNTDOWN BELOW -->
+            <div id="eta-countdown" class="text-xs text-gray-500 mt-2">—</div>
+          </div>
+        </div>
+
+        <!-- SNAPSHOT BUTTON (opens modal) -->
+        <button
+          id="open-snapshot"
+          class="w-full max-w-lg bg-white border border-gray-300 rounded-xl py-3 text-sm text-gray-700 shadow-sm hover:shadow transition mb-4 flex items-center justify-center gap-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 text-brand"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 8h18M3 16h18M6 4h12M6 20h12"
+            />
+          </svg>
+          Queue Overview
+        </button>
+
+        <button
+          id="privacy-info"
+          class="text-xs text-gray-500 underline hover:text-gray-700 transition mb-4 flex items-center gap-1"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-3 w-3"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 16h-1v-4h-1m1-4h.01M12 3a9 9 0 110 18 9 9 0 010-18z"
+            />
+          </svg>
+          Privacy & Data Policy
+        </button>
+
+        <!-- STATUS MESSAGE -->
+        <div id="updates" class="text-gray-600 text-sm mb-6 leading-relaxed">
+          <p id="status-message">Please wait until your name is called.</p>
+        </div>
+
+        <!-- REFRESH BUTTON -->
+        <button
+          id="refresh-btn"
+          class="w-full bg-brand text-white py-3 rounded-xl font-semibold shadow-md hover:shadow-lg active:scale-[0.98] transition flex items-center justify-center gap-2 active:scale-95"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M4 4v6h6M20 20v-6h-6M4 10a8 8 0 018-8m8 8a8 8 0 01-8 8"
+            />
+          </svg>
+          Refresh Status
+        </button>
+
+        <button
+          id="leave-queue"
+          class="mt-3 w-full bg-red-500 text-white py-3 rounded-xl font-semibold shadow-sm hover:bg-red-600 active:scale-[0.98] transition active:scale-95"
+        >
+          Leave Queue
+        </button>
+      </section>
+
+      <!-- GAME LINK -->
+      <a
+        id="game-link"
+        class="mt-6 text-sm text-brand hover:text-brandDark transition underline flex items-center gap-2"
+        href="https://tetris.com/play-tetris"
+        target="_blank"
+      >
+        🎮 <span>Play a quick game</span>
+      </a>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="text-center text-gray-400 text-xs py-6">
+      QueueLeaf · Customer Status
+    </footer>
+
+    <!-- BACKDROP -->
+    <div
+      id="snapshot-backdrop"
+      class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm"
+    ></div>
+
+    <!-- SNAPSHOT MODAL -->
+    <div
+      id="snapshot-modal"
+      class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-11/12 max-w-md rounded-2xl shadow-xl p-6 animate-fadeInUp"
+    >
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Queue Overview</h3>
+
+      <div class="space-y-3 text-sm">
+        <div class="flex justify-between">
+          <span class="text-gray-500">Queue</span>
+          <span id="modal-queue-name" class="font-semibold text-gray-800"
+            >—</span
+          >
+        </div>
+
+        <div class="flex justify-between">
+          <span class="text-gray-500">People Ahead</span>
+          <span id="modal-ahead-count" class="font-semibold text-gray-800"
+            >—</span
+          >
+        </div>
+
+        <div class="flex justify-between">
+          <span class="text-gray-500">Avg Service Time</span>
+          <span id="modal-avg-service" class="font-semibold text-gray-800"
+            >—</span
+          >
+        </div>
+
+        <div class="flex justify-between">
+          <span class="text-gray-500">Total Waiting Today</span>
+          <span id="modal-total-waiting" class="font-semibold text-gray-800"
+            >—</span
+          >
+        </div>
+      </div>
+
+      <!-- Ahead-of-you list -->
+      <div class="mt-4 border-t pt-3">
+        <div class="text-xs text-gray-500 mb-1">Ahead of You</div>
+        <div
+          id="modal-ahead-list"
+          class="space-y-2 max-h-40 overflow-y-auto"
+        ></div>
+      </div>
+
+      <button
+        id="snapshot-close"
+        class="mt-5 w-full bg-brand text-white py-2 rounded-xl shadow hover:bg-brandDark transition"
+      >
+        Close
+      </button>
+    </div>
+
+    <!-- PRIVACY MODAL -->
+    <div
+      id="privacy-modal"
+      class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-11/12 max-w-md rounded-2xl shadow-xl p-6 animate-fadeInUp"
+    >
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Privacy Notice</h3>
+
+      <p class="text-sm text-gray-600 leading-relaxed">
+        Your information (name and phone number) is used
+        <strong>only</strong> for queue management. After your visit is
+        complete, your data becomes <strong>fully anonymized</strong>. We keep
+        anonymized entries to help improve estimated wait times and analytics.
+        We do not share or sell your data.
+      </p>
+
+      <button
+        id="privacy-close"
+        class="mt-5 w-full bg-brand text-white py-2 rounded-xl shadow hover:bg-brandDark transition"
+      >
+        I Understand
+      </button>
+    </div>
+
+    <!-- Shared Modal Backdrop Already Exists -->
+
+    <!-- JS -->
+    <script type="module" src="js/customer.js"></script>
+    <audio id="call-sound" src="assets/bell.mp3" preload="auto"></audio>
+  </body>
+</html>

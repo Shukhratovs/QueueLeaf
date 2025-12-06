@@ -1,0 +1,592 @@
+:root {
+  --bg: #f1f5f9;
+  --card: #fff;
+  --muted: #64748b;
+  --ink: #0f172a;
+
+  --brand: #0d9488;
+  --brand-ink: #fff;
+
+  --line: #e2e8f0;
+  --warn: #f87171;
+
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+
+  --bar: #cbd5e1;
+  --hover: #e5e7eb;
+
+  --nav-active: #0f172a;
+  --nav-active-ink: #fff;
+}
+
+/* Dark theme overrides */
+html[data-theme="dark"],
+body[data-theme="dark"] {
+  --bg: #0b1220;
+  --card: #0f172a;
+  --muted: #94a3b8;
+  --ink: #e2e8f0;
+
+  --brand: #14b8a6;
+  --brand-ink: #041214;
+
+  --line: #1f2a44;
+  --warn: #fda4af;
+
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+
+  --bar: #334155;
+  --hover: #1f2937;
+
+  --nav-active: #e2e8f0;
+  --nav-active-ink: #0b1220;
+}
+
+/* =========================================
+   DARK MODE: QR Poster / Printable Preview
+   ========================================= */
+
+html[data-theme="dark"] .poster-preview {
+  background: var(--card); /* was #fff */
+  border-color: var(--line); /* darker border */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  color: var(--ink); /* inherit light text */
+}
+
+html[data-theme="dark"] .poster-preview h2,
+html[data-theme="dark"] .poster-preview p {
+  color: var(--ink);
+}
+
+html[data-theme="dark"] #qr-box small,
+html[data-theme="dark"] #qr-box .qr-url,
+html[data-theme="dark"] #qr-box .qr-hint {
+  color: var(--muted);
+}
+
+/* If you render a caption/URL under the QR */
+.qr-url {
+  font-size: 13px;
+  color: #475569;
+  text-align: center;
+  word-break: break-all;
+  line-height: 1.4;
+  margin-top: 0.5rem;
+}
+html[data-theme="dark"] .qr-url {
+  color: var(--muted);
+}
+
+/* Optional: smooth the poster border a little in dark mode */
+html[data-theme="dark"] .poster-preview {
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+}
+
+/* Banner specific dark override */
+html[data-theme="dark"] .banner {
+  background: linear-gradient(135deg, #052e2b, #053e3b);
+  border-color: #134e4a;
+}
+
+/* Queue position chip dark override */
+html[data-theme="dark"] .queue-list .pos {
+  background: #1f2937;
+  color: #e2e8f0;
+}
+
+/* Pill dark override */
+html[data-theme="dark"] .pill {
+  background: #1f2937;
+  color: #cbd5e1;
+}
+
+/* =========================================================
+   GLOBAL ELEMENTS & RESETS
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+
+  background: var(--bg);
+  color: var(--ink);
+
+  font-family: Inter, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* Page-wide wrapper */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* =========================================================
+   LAYOUT / STRUCTURE
+   ========================================================= */
+
+/* Cards */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.subcard {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+
+  padding: 16px;
+  margin-top: 12px;
+}
+
+/* Header / Nav Bar */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  display: flex;
+  align-items: center;
+
+  background: color-mix(in oklab, var(--card) 90%, transparent);
+  backdrop-filter: blur(6px);
+
+  border-bottom: 1px solid var(--line);
+}
+
+.site-header .brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 16px;
+}
+
+.logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+}
+
+.brand-name {
+  font-weight: 600;
+}
+
+.nav {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+
+  padding: 8px 16px;
+}
+
+.nav-btn {
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+
+  padding: 8px 12px;
+  border-radius: 10px;
+
+  cursor: pointer;
+}
+
+.nav-btn:hover {
+  background: var(--hover);
+}
+
+.nav-btn.active {
+  background: var(--nav-active);
+  color: var(--nav-active-ink);
+}
+
+/* Banner (top info strip) */
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  background: linear-gradient(135deg, #ecfdf5, #e6fffb);
+  border: 1px solid #99f6e4;
+
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+/* Grid Helpers */
+.grid-3 {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-3 .full {
+  grid-column: 1 / -1;
+}
+
+.grid-2 {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+}
+
+/* Stack (vertical spacing) */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Row helpers */
+.row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.between {
+  justify-content: space-between;
+}
+
+/* Stats grid */
+.stats {
+  display: grid;
+  gap: 12px;
+}
+
+.stats.two {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.stats.four {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* Single stat card */
+.stat {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+
+  padding: 12px;
+}
+
+/* Table wrapper */
+.table-wrap {
+  overflow: auto;
+}
+
+/* Table */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 8px;
+  border-top: 1px solid var(--line);
+}
+
+/* Ticket row block */
+.ticket {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+
+  padding: 12px;
+}
+
+.ticket-title {
+  font-weight: 600;
+  font-size: 18px;
+}
+
+/* Queue list (for status page) */
+.queue-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.queue-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px;
+}
+
+.queue-list .pos {
+  width: 28px;
+  height: 28px;
+
+  display: grid;
+  place-items: center;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  background: #f1f5f9;
+  border-radius: 50%;
+  color: inherit;
+}
+
+/* QR Poster / Poster preview area */
+.poster {
+  display: grid;
+  place-items: center;
+  text-align: center;
+
+  background: var(--bg);
+  border: 1px dashed var(--line);
+  border-radius: 16px;
+
+  padding: 24px;
+}
+
+.poster .qr {
+  width: 160px;
+  height: 160px;
+
+  display: grid;
+  place-items: center;
+
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-radius: 12px;
+
+  margin: 16px auto;
+  color: var(--muted);
+}
+
+/* Analytics bar chart */
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+
+  height: 280px;
+  overflow: auto;
+
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+
+  padding: 12px;
+}
+
+.bar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+
+  width: 28px;
+  background: var(--bar);
+  border-radius: 8px 8px 0 0;
+}
+
+.bar span {
+  font-size: 10px;
+  color: var(--muted);
+
+  transform: translateY(100%);
+  margin-top: 4px;
+}
+
+/* QR poster card (staff printable preview) */
+.poster-preview {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+
+  max-width: 340px;
+
+  padding: 1rem 1rem 1.5rem;
+  text-align: center;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+/* box that physically holds the QR */
+#qr-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+
+  padding: 2rem;
+  margin-top: 1.5rem;
+}
+
+/* =========================================================
+   FORM ELEMENTS / INPUTS / BUTTONS
+   ========================================================= */
+
+label > span {
+  display: block;
+  margin-bottom: 6px;
+
+  font-size: 13px;
+  color: var(--muted);
+}
+
+input,
+textarea {
+  width: 100%;
+
+  background: var(--card);
+  color: var(--ink);
+
+  border: 1px solid var(--line);
+  border-radius: 12px;
+
+  padding: 10px;
+  font-size: 14px;
+}
+
+.btn {
+  background: var(--card);
+  color: var(--ink);
+
+  border: 1px solid var(--line);
+  border-radius: 12px;
+
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn:hover {
+  background: var(--hover);
+}
+
+.btn.primary {
+  background: var(--brand);
+  color: var(--brand-ink);
+
+  border-color: transparent;
+}
+
+.btn.primary:hover {
+  filter: brightness(0.95);
+}
+
+.btn.dark {
+  background: #0f172a;
+  color: #fff;
+  border-color: transparent;
+}
+
+.btn.tiny {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+/* =========================================================
+   TEXT / UTILITY CLASSES
+   ========================================================= */
+
+.label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.value {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.hint {
+  color: #334155;
+}
+
+.subtle {
+  color: var(--muted);
+  margin-left: 4px;
+  margin-bottom: 7px;
+}
+
+.warn {
+  color: var(--warn);
+  font-weight: 600;
+}
+
+.muted {
+  color: #94a3b8;
+}
+
+.micro {
+  font-size: 12px;
+}
+
+/* Footer */
+.site-footer {
+  text-align: center;
+  color: var(--muted);
+
+  padding: 24px;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .stats.four {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Blinking animation for called alert */
+@keyframes blink-alert {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.called-blink {
+  animation: blink-alert 1s infinite;
+}

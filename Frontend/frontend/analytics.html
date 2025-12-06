@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: "#0d9488",
+              brandDark: "#0f766e",
+            },
+            keyframes: {
+              fadeInUp: {
+                "0%": { opacity: 0, transform: "translateY(12px)" },
+                "100%": { opacity: 1, transform: "translateY(0)" },
+              },
+            },
+            animation: {
+              fadeInUp: "fadeInUp 0.4s ease-out",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      .grid-cols-25 {
+        display: grid;
+        grid-template-columns: repeat(25, minmax(0, 1fr));
+      }
+    </style>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QueueLeaf Analytics</title>
+    <link rel="icon" href="assets/logo.png" />
+  </head>
+
+  <body>
+    <header class="w-full bg-white shadow-sm">
+      <div
+        class="max-w-5xl mx-auto flex items-center justify-between px-4 py-3"
+      >
+        <!-- Brand -->
+        <div class="flex items-center gap-3">
+          <img
+            src="assets/logo.png"
+            alt="QueueLeaf"
+            class="w-8 h-8 rounded-lg"
+          />
+          <span class="font-semibold text-lg text-gray-700">QueueLeaf</span>
+        </div>
+
+        <nav class="flex items-center gap-2">
+          <button
+            onclick="window.location.href='dashboard.html'"
+            class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+          >
+            Dashboard
+          </button>
+
+          <button
+            class="px-4 py-2 rounded-lg text-sm font-medium bg-brand text-white shadow hover:bg-brandDark transition"
+          >
+            Analytics
+          </button>
+
+          <button
+            id="logout-btn"
+            class="px-4 py-2 rounded-lg text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition"
+          >
+            Logout
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-6xl mx-auto px-4 py-6 animate-fadeInUp">
+      <!-- DATE RANGE SELECTOR -->
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-3xl font-bold text-gray-800">Analytics Dashboard</h2>
+
+        <select
+          id="range-select"
+          class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
+        >
+          <option value="7">Last 7 Days</option>
+          <option value="14">Last 14 Days</option>
+          <option value="30">Last 30 Days</option>
+          <option value="custom">Custom Range</option>
+        </select>
+      </div>
+
+      <!-- CUSTOM DATE PICKERS (hidden initially) -->
+      <div id="custom-range" class="hidden flex gap-3 mb-4 items-center">
+        <input
+          type="date"
+          id="start-date"
+          class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-brand/40"
+        />
+        <input
+          type="date"
+          id="end-date"
+          class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-brand/40"
+        />
+
+        <button
+          id="apply-custom"
+          class="px-4 py-2 bg-brand text-white rounded-lg shadow hover:bg-brandDark transition"
+        >
+          Apply
+        </button>
+      </div>
+
+      <!-- LIVE REFRESH TOGGLE -->
+      <div class="flex items-center gap-3 mb-4">
+        <input
+          type="checkbox"
+          id="live-refresh-toggle"
+          class="h-4 w-4 text-brand border-gray-300 rounded"
+        />
+        <label for="live-refresh-toggle" class="text-sm text-gray-600">
+          Enable Live Refresh (Every 10 Seconds)
+        </label>
+      </div>
+
+      <!-- TOP METRIC CARDS -->
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white p-4 rounded-xl shadow border border-gray-100">
+          <p class="text-xs text-gray-500">Total Tickets</p>
+          <p class="text-xl font-bold text-gray-800" id="total-tickets">–</p>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow border border-gray-100">
+          <p class="text-xs text-gray-500">Served</p>
+          <p class="text-xl font-bold text-gray-800" id="served-tickets">–</p>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow border border-gray-100">
+          <p class="text-xs text-gray-500">Total Queues</p>
+          <p class="text-xl font-bold text-gray-800" id="total-queues">–</p>
+        </div>
+      </section>
+
+      <!-- ANALYTICS GRID (ALL VISIBLE AT ONCE) -->
+      <!-- ANALYTICS GRID (Compact) -->
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- SERVED TREND -->
+        <div class="bg-white p-4 rounded-xl shadow border border-gray-100">
+          <h3 class="text-sm font-semibold text-gray-700 mb-2">
+            Served/Left Trend
+          </h3>
+          <canvas id="chart-served-trend" height="100"></canvas>
+          <p class="text-gray-400 text-xs mt-2">
+            X: Days • Y: Customers Served/Left
+          </p>
+        </div>
+
+        <!-- WAIT TREND -->
+        <div class="bg-white p-4 rounded-xl shadow border border-gray-100">
+          <h3 class="text-sm font-semibold text-gray-700 mb-2">
+            Avg Wait Time
+          </h3>
+          <canvas id="chart-wait-trend" height="100"></canvas>
+          <p class="text-gray-400 text-xs mt-2">
+            X: Days • Y: Avg Wait (minutes)
+          </p>
+        </div>
+
+        <!-- PEAK DAY -->
+        <div class="bg-white p-4 rounded-xl shadow border border-gray-100">
+          <h3 class="text-sm font-semibold text-gray-800 mb-2">
+            Peak Day of Week
+          </h3>
+          <canvas id="chart-peak-day" height="120"></canvas>
+          <p class="text-gray-400 text-xs mt-2">
+            X: Weekday • Y: Customers Visited
+          </p>
+        </div>
+
+        <!-- COMPACT HEATMAP -->
+        <div class="bg-white p-4 rounded-xl shadow border border-gray-100">
+          <h3 class="text-lg font-semibold text-gray-800 mb-3">
+            Heatmap: Peak Hours
+          </h3>
+
+          <div
+            id="heatmap-grid"
+            class="grid grid-cols-25 gap-0.5 text-[10px]"
+          ></div>
+
+          <p class="text-gray-500 text-xs mt-2">
+            X: Hour of Day (0–23) • Y: Day of Week
+          </p>
+          <p class="text-gray-400 text-[10px] mt-1">
+            Darker colors = higher volume
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="text-center text-gray-400 text-xs py-6">
+      QueueLeaf · Analytics Dashboard
+    </footer>
+
+    <!-- JS hook to be added later -->
+    <script type="module" src="js/analytics.js"></script>
+  </body>
+</html>

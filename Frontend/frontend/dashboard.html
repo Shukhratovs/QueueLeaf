@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: "#0d9488",
+              brandDark: "#0f766e",
+            },
+            keyframes: {
+              fadeInUp: {
+                "0%": { opacity: 0, transform: "translateY(12px)" },
+                "100%": { opacity: 1, transform: "translateY(0)" },
+              },
+              modalPop: {
+                "0%": { opacity: 0, transform: "scale(0.95)" },
+                "100%": { opacity: 1, transform: "scale(1)" },
+              },
+            },
+            animation: {
+              fadeInUp: "fadeInUp 0.4s ease-out",
+              modalPop: "modalPop 0.2s ease-out",
+            },
+          },
+        },
+      };
+    </script>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QueueLeaf Dashboard</title>
+    <link rel="icon" href="assets/logo.png" />
+  </head>
+
+  <body class="min-h-screen flex flex-col bg-gray-50">
+    <!-- HEADER -->
+    <header class="w-full bg-white shadow-sm">
+      <div
+        class="max-w-5xl mx-auto flex items-center justify-between px-4 py-3"
+      >
+        <!-- Brand Section -->
+        <div class="flex items-center gap-3">
+          <img
+            src="assets/logo.png"
+            alt="QueueLeaf"
+            class="w-8 h-8 rounded-lg"
+          />
+          <span class="font-semibold text-lg text-gray-700">QueueLeaf</span>
+        </div>
+
+        <!-- NAVIGATION -->
+        <nav class="flex items-center gap-2">
+          <button
+            data-route="dashboard"
+            class="px-4 py-2 rounded-lg text-sm font-medium bg-brand text-white shadow hover:bg-brandDark transition"
+          >
+            Dashboard
+          </button>
+
+          <button
+            onclick="window.location.href='analytics.html'"
+            class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+          >
+            Analytics
+          </button>
+
+          <button
+            id="logout-btn"
+            class="px-4 py-2 rounded-lg text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition"
+          >
+            Logout
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- QR BACKDROP -->
+    <div
+      id="qr-modal-backdrop"
+      class="hidden fixed inset-0 bg-black bg-opacity-40 z-40"
+    ></div>
+
+    <!-- QR MODAL -->
+    <div
+      id="qr-modal"
+      class="hidden fixed inset-0 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 sm:p-8 animate-modalPop"
+      >
+        <!-- Header -->
+        <h3 class="text-xl font-semibold text-gray-800">Queue QR Code</h3>
+
+        <!-- QR Canvas -->
+        <div id="qr-canvas" class="flex justify-center mt-6 mb-4"></div>
+
+        <!-- URL Display -->
+        <div
+          id="qr-url"
+          class="text-center text-gray-600 text-sm mb-4 break-all"
+        ></div>
+
+        <!-- Buttons -->
+        <div class="flex justify-center gap-3 pt-2">
+          <button
+            id="qr-close"
+            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+          >
+            Close
+          </button>
+
+          <a
+            id="qr-download"
+            download="queueleaf-qr.png"
+            class="px-4 py-2 bg-brand text-white rounded-lg shadow hover:bg-brandDark transition"
+          >
+            Download PNG
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Title + New Queue Button -->
+    <!-- BACKDROP -->
+    <div
+      id="new-queue-modal-backdrop"
+      class="hidden fixed inset-0 bg-black bg-opacity-40 z-40"
+    ></div>
+
+    <!-- Create Queue MODAL -->
+    <div
+      id="new-queue-modal"
+      class="hidden fixed inset-0 flex items-center justify-center z-50 animate-modalPop"
+    >
+      <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 sm:p-8">
+        <h3 class="text-xl font-semibold text-gray-800">Create New Queue</h3>
+
+        <div class="mt-5 space-y-4">
+          <!-- Queue Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Queue Name
+            </label>
+            <input
+              id="new-queue-name"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
+              placeholder="e.g., Main Dining"
+            />
+          </div>
+
+          <!-- Avg Service Time -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Average Service Time (min)
+            </label>
+            <input
+              id="new-queue-avg"
+              type="number"
+              min="1"
+              value="5"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
+            />
+          </div>
+
+          <!-- BUTTONS -->
+          <div class="flex justify-end gap-3 pt-4">
+            <button
+              id="new-queue-cancel"
+              class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+            >
+              Cancel
+            </button>
+
+            <button
+              id="new-queue-create"
+              class="px-4 py-2 bg-brand text-white rounded-lg shadow hover:bg-brandDark transition"
+            >
+              Create
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN PANEL -->
+    <main class="flex-1 w-full max-w-5xl mx-auto px-4 py-8 animate-fadeInUp">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Your Queues</h2>
+
+        <button
+          id="btn-new-queue"
+          class="px-4 py-2 bg-brand text-white rounded-lg font-medium shadow hover:bg-brandDark transition"
+        >
+          + New Queue
+        </button>
+      </div>
+
+      <!-- QUEUE CARDS GRID -->
+      <section
+        id="queues-container"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+      >
+        <!-- Cards inserted dynamically -->
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="text-center text-gray-400 text-xs py-6">
+      QueueLeaf · Manager Dashboard
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script type="module" src="js/staff.js"></script>
+  </body>
+</html>
